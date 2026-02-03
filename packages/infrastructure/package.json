@@ -1,0 +1,72 @@
+{
+  "name": "@pdf-editor/infrastructure",
+  "version": "0.1.0",
+  "description": "Infrastructure package for PDF editor - state management, persistence, and user interactions",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./commands": {
+      "import": "./dist/commands/index.mjs",
+      "require": "./dist/commands/index.js",
+      "types": "./dist/commands/index.d.ts"
+    },
+    "./store": {
+      "import": "./dist/store/index.mjs",
+      "require": "./dist/store/index.js",
+      "types": "./dist/store/index.d.ts"
+    },
+    "./files": {
+      "import": "./dist/files/index.mjs",
+      "require": "./dist/files/index.js",
+      "types": "./dist/files/index.d.ts"
+    },
+    "./settings": {
+      "import": "./dist/settings/index.mjs",
+      "require": "./dist/settings/index.js",
+      "types": "./dist/settings/index.d.ts"
+    },
+    "./keyboard": {
+      "import": "./dist/keyboard/index.mjs",
+      "require": "./dist/keyboard/index.js",
+      "types": "./dist/keyboard/index.d.ts"
+    },
+    "./i18n": {
+      "import": "./dist/i18n/index.mjs",
+      "require": "./dist/i18n/index.js",
+      "types": "./dist/i18n/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc && tsc -p tsconfig.esm.json",
+    "clean": "rm -rf dist",
+    "test": "echo 'No tests configured yet'"
+  },
+  "dependencies": {
+    "i18next": "^23.7.0",
+    "idb": "^8.0.0",
+    "zustand": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "pdf",
+    "editor",
+    "infrastructure",
+    "state-management",
+    "zustand",
+    "i18n"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,85 @@
+{
+  "name": "@pdf-editor/core",
+  "version": "0.1.0",
+  "description": "Core PDF engine for PDF editor - parsing, manipulation, and rendering",
+  "main": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./document": {
+      "import": "./dist/esm/document/index.js",
+      "require": "./dist/document/index.js",
+      "types": "./dist/document/index.d.ts"
+    },
+    "./operations": {
+      "import": "./dist/esm/operations/index.js",
+      "require": "./dist/operations/index.js",
+      "types": "./dist/operations/index.d.ts"
+    },
+    "./io": {
+      "import": "./dist/esm/io/index.js",
+      "require": "./dist/io/index.js",
+      "types": "./dist/io/index.d.ts"
+    },
+    "./text": {
+      "import": "./dist/esm/text/index.js",
+      "require": "./dist/text/index.js",
+      "types": "./dist/text/index.d.ts"
+    },
+    "./fonts": {
+      "import": "./dist/esm/fonts/index.js",
+      "require": "./dist/fonts/index.js",
+      "types": "./dist/fonts/index.d.ts"
+    },
+    "./signatures": {
+      "import": "./dist/esm/signatures/index.js",
+      "require": "./dist/signatures/index.js",
+      "types": "./dist/signatures/index.d.ts"
+    },
+    "./ocr": {
+      "import": "./dist/esm/ocr/index.js",
+      "require": "./dist/ocr/index.js",
+      "types": "./dist/ocr/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc && tsc -p tsconfig.esm.json",
+    "clean": "rm -rf dist",
+    "test": "echo 'No tests configured yet'"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^4.0.379",
+    "pdf-lib": "^1.17.1",
+    "tesseract.js": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "canvas": "^2.11.2"
+  },
+  "peerDependenciesMeta": {
+    "canvas": {
+      "optional": true
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "pdf",
+    "editor",
+    "pdf.js",
+    "pdf-lib",
+    "parsing",
+    "rendering"
+  ],
+  "license": "MIT"
+}

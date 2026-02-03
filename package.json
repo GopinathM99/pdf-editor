@@ -1,0 +1,29 @@
+{
+  "name": "pdf-editor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A comprehensive PDF editor application",
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:core": "pnpm --filter @pdf-editor/core build",
+    "build:ui": "pnpm --filter @pdf-editor/ui build",
+    "build:desktop": "pnpm --filter @pdf-editor/desktop build",
+    "build:web": "pnpm --filter @pdf-editor/web build",
+    "dev:desktop": "pnpm --filter @pdf-editor/desktop dev",
+    "dev:web": "pnpm --filter @pdf-editor/web dev",
+    "package:desktop": "pnpm --filter @pdf-editor/desktop package",
+    "package:desktop:mac": "pnpm --filter @pdf-editor/desktop package:mac",
+    "package:desktop:win": "pnpm --filter @pdf-editor/desktop package:win",
+    "package:desktop:linux": "pnpm --filter @pdf-editor/desktop package:linux",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r clean",
+    "typecheck": "tsc --build"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

@@ -1,0 +1,225 @@
+{
+  "app": {
+    "name": "PDF Editor",
+    "version": "Version {{version}}"
+  },
+  "menu": {
+    "file": "File",
+    "edit": "Edit",
+    "view": "View",
+    "tools": "Tools",
+    "help": "Help"
+  },
+  "file": {
+    "new": "New",
+    "open": "Open",
+    "openRecent": "Open Recent",
+    "save": "Save",
+    "saveAs": "Save As...",
+    "export": "Export",
+    "print": "Print",
+    "close": "Close",
+    "exit": "Exit"
+  },
+  "edit": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "delete": "Delete",
+    "selectAll": "Select All",
+    "find": "Find",
+    "findReplace": "Find and Replace"
+  },
+  "view": {
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "actualSize": "Actual Size",
+    "fitPage": "Fit Page",
+    "fitWidth": "Fit Width",
+    "fullscreen": "Fullscreen",
+    "sidebar": "Sidebar",
+    "thumbnails": "Thumbnails",
+    "bookmarks": "Bookmarks",
+    "annotations": "Annotations"
+  },
+  "tools": {
+    "select": "Select",
+    "hand": "Hand",
+    "text": "Text",
+    "highlight": "Highlight",
+    "underline": "Underline",
+    "strikethrough": "Strikethrough",
+    "rectangle": "Rectangle",
+    "circle": "Circle",
+    "line": "Line",
+    "arrow": "Arrow",
+    "freehand": "Freehand",
+    "eraser": "Eraser",
+    "stamp": "Stamp",
+    "signature": "Signature",
+    "note": "Sticky Note",
+    "link": "Link"
+  },
+  "pages": {
+    "title": "Pages",
+    "page": "Page",
+    "of": "of",
+    "insert": "Insert Page",
+    "delete": "Delete Page",
+    "rotate": "Rotate Page",
+    "rotateLeft": "Rotate Left",
+    "rotateRight": "Rotate Right",
+    "extract": "Extract Pages",
+    "reorder": "Reorder Pages"
+  },
+  "document": {
+    "untitled": "Untitled",
+    "properties": "Document Properties",
+    "title": "Title",
+    "author": "Author",
+    "subject": "Subject",
+    "keywords": "Keywords",
+    "created": "Created",
+    "modified": "Modified",
+    "pageSize": "Page Size",
+    "fileSize": "File Size"
+  },
+  "annotations": {
+    "title": "Annotations",
+    "addNote": "Add Note",
+    "editNote": "Edit Note",
+    "deleteNote": "Delete Note",
+    "color": "Color",
+    "opacity": "Opacity",
+    "author": "Author",
+    "date": "Date",
+    "reply": "Reply"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search in document...",
+    "noResults": "No results found",
+    "results": "{{count}} results",
+    "matchCase": "Match Case",
+    "wholeWords": "Whole Words"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "appearance": "Appearance",
+    "editor": "Editor",
+    "shortcuts": "Keyboard Shortcuts",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "defaultZoom": "Default Zoom",
+    "autosave": "Auto-save",
+    "autosaveInterval": "Auto-save Interval",
+    "seconds": "seconds"
+  },
+  "dialogs": {
+    "save": {
+      "title": "Save Document",
+      "message": "Do you want to save changes to {{filename}}?",
+      "saveChanges": "Save Changes",
+      "dontSave": "Don't Save",
+      "cancel": "Cancel"
+    },
+    "close": {
+      "title": "Close Document",
+      "message": "You have unsaved changes. Are you sure you want to close?"
+    },
+    "delete": {
+      "title": "Confirm Delete",
+      "message": "Are you sure you want to delete this item?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "error": {
+      "title": "Error",
+      "fileNotFound": "File not found",
+      "fileCorrupted": "File is corrupted or invalid",
+      "saveFailed": "Failed to save file",
+      "loadFailed": "Failed to load file",
+      "permissionDenied": "Permission denied"
+    },
+    "recovery": {
+      "title": "Recover Document",
+      "message": "An unsaved document was found. Would you like to recover it?",
+      "recover": "Recover",
+      "discard": "Discard"
+    },
+    "conflict": {
+      "title": "File Conflict",
+      "message": "The file has been modified outside the application.",
+      "keepOurs": "Keep My Changes",
+      "keepTheirs": "Load External Changes",
+      "saveAs": "Save As New File"
+    }
+  },
+  "notifications": {
+    "saved": "Document saved",
+    "copied": "Copied to clipboard",
+    "deleted": "Item deleted",
+    "undone": "Action undone",
+    "redone": "Action redone",
+    "autoSaved": "Auto-saved",
+    "exportComplete": "Export complete",
+    "printComplete": "Print job sent"
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "networkError": "Network error. Please check your connection.",
+    "timeout": "Operation timed out",
+    "invalidFile": "Invalid file format",
+    "fileTooLarge": "File is too large",
+    "unsupportedFeature": "This feature is not supported"
+  },
+  "accessibility": {
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "zoomLevel": "Zoom level: {{level}}%",
+    "pageNumber": "Page {{current}} of {{total}}"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "remove": "Remove",
+    "apply": "Apply",
+    "reset": "Reset",
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "yes": "Yes",
+    "no": "No",
+    "none": "None",
+    "all": "All",
+    "more": "More",
+    "less": "Less"
+  },
+  "recentFiles": {
+    "title": "Recent Files",
+    "noRecent": "No recent files",
+    "clear": "Clear Recent Files",
+    "openFolder": "Open Containing Folder"
+  },
+  "about": {
+    "title": "About PDF Editor",
+    "description": "A comprehensive PDF editing application",
+    "license": "License",
+    "credits": "Credits",
+    "website": "Website",
+    "checkUpdates": "Check for Updates"
+  }
+}

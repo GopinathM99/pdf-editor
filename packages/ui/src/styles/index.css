@@ -1,0 +1,157 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles for the PDF editor UI */
+@layer base {
+  /* Focus visible styles for accessibility */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-pdf-primary;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Button styles */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-colors;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-pdf-primary focus-visible:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply bg-pdf-primary text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-pdf-background text-pdf-secondary border border-pdf-border hover:bg-pdf-hover disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-icon {
+    @apply p-1.5 rounded hover:bg-pdf-hover disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Input styles */
+  .input {
+    @apply px-3 py-2 text-sm border border-pdf-border rounded-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-pdf-primary focus:border-pdf-primary;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Panel styles */
+  .panel {
+    @apply bg-pdf-surface border border-pdf-border rounded-lg shadow-sm;
+  }
+
+  .panel-header {
+    @apply px-4 py-3 border-b border-pdf-border bg-pdf-background font-medium;
+  }
+
+  .panel-body {
+    @apply p-4;
+  }
+
+  /* Toolbar styles */
+  .toolbar {
+    @apply flex items-center gap-2 px-3 py-2 bg-pdf-surface border-b border-pdf-border;
+  }
+
+  .toolbar-separator {
+    @apply w-px h-6 bg-pdf-border;
+  }
+
+  /* Overlay selection styles */
+  .overlay-selected {
+    @apply ring-2 ring-pdf-primary ring-offset-1;
+  }
+
+  .overlay-resize-handle {
+    @apply absolute w-3 h-3 bg-white border-2 border-pdf-primary;
+  }
+
+  /* Thumbnail styles */
+  .thumbnail {
+    @apply flex flex-col items-center p-2 cursor-pointer transition-colors;
+    @apply hover:bg-pdf-hover;
+  }
+
+  .thumbnail-selected {
+    @apply bg-pdf-active;
+  }
+
+  .thumbnail-image {
+    @apply relative bg-white shadow-md;
+  }
+
+  /* Canvas container */
+  .canvas-container {
+    @apply overflow-auto bg-gray-500 flex-1;
+  }
+
+  /* Page styles */
+  .page {
+    @apply relative bg-white shadow-lg mx-auto my-4;
+  }
+
+  .page-content {
+    @apply absolute inset-0 bg-gray-100 flex items-center justify-center;
+  }
+
+  .page-number-badge {
+    @apply absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar for webkit browsers */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-gray-200;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Prevent text selection during drag */
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  /* Cursor grab states */
+  .cursor-grab {
+    cursor: grab;
+  }
+
+  .cursor-grabbing {
+    cursor: grabbing;
+  }
+}
