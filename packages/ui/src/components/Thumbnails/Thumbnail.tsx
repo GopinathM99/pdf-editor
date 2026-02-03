@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { PDFPage } from '../../types';
+import type { RenderPageFn } from '../PDFCanvas/PDFCanvas';
 
 interface ThumbnailProps {
   page: PDFPage;
@@ -7,6 +8,7 @@ interface ThumbnailProps {
   onClick?: () => void;
   onDoubleClick?: () => void;
   scale?: number;
+  renderPage?: RenderPageFn;
   className?: string;
 }
 
@@ -16,10 +18,18 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({
   onClick,
   onDoubleClick,
   scale = 0.15,
+  renderPage,
   className = '',
 }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const thumbnailWidth = page.width * scale;
   const thumbnailHeight = page.height * scale;
+
+  useEffect(() => {
+    if (renderPage && canvasRef.current) {
+      renderPage(page.pageNumber, canvasRef.current, scale);
+    }
+  }, [renderPage, page.pageNumber, scale]);
 
   return (
     <div
@@ -54,20 +64,11 @@ export const Thumbnail: React.FC<ThumbnailProps> = ({
           transform: `rotate(${page.rotation}deg)`,
         }}
       >
-        {/* Mock thumbnail content */}
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-          <div className="text-gray-400 text-xs">{page.pageNumber}</div>
-          {/* Mini mock content lines */}
-          <div className="absolute inset-1 flex flex-col gap-0.5 pointer-events-none opacity-50">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-0.5 bg-gray-300 rounded-sm"
-                style={{ width: `${50 + Math.random() * 50}%` }}
-              />
-            ))}
-          </div>
-        </div>
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0"
+          style={{ width: thumbnailWidth, height: thumbnailHeight }}
+        />
       </div>
 
       {/* Page number label */}

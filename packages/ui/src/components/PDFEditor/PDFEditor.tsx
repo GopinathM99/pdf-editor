@@ -9,9 +9,11 @@ import { ImageOverlay } from '../Overlays/ImageOverlay';
 import { ShapeOverlay } from '../Overlays/ShapeOverlay';
 import { LayerControls } from '../Overlays/LayerControls';
 import { Overlay, TextOverlay, ShapeType } from '../../types';
+import type { RenderPageFn } from '../PDFCanvas/PDFCanvas';
 
 interface PDFEditorProps {
   className?: string;
+  renderPage?: RenderPageFn;
 }
 
 /**
@@ -20,7 +22,7 @@ interface PDFEditorProps {
  * This is a demo component showing how to compose all the UI pieces together.
  * In a real application, you would likely customize this based on your needs.
  */
-export const PDFEditor: React.FC<PDFEditorProps> = ({ className = '' }) => {
+export const PDFEditor: React.FC<PDFEditorProps> = ({ className = '', renderPage }) => {
   const {
     // State
     pages,
@@ -253,6 +255,7 @@ export const PDFEditor: React.FC<PDFEditorProps> = ({ className = '' }) => {
             currentPageIndex={currentPageIndex}
             onPageSelect={setCurrentPageIndex}
             onClose={toggleThumbnailPanel}
+            renderPage={renderPage}
           />
         )}
 
@@ -267,6 +270,7 @@ export const PDFEditor: React.FC<PDFEditorProps> = ({ className = '' }) => {
           onPageChange={setCurrentPageIndex}
           onOverlaySelect={selectOverlay}
           renderOverlay={renderOverlay}
+          renderPage={renderPage}
           className="flex-1"
         />
 

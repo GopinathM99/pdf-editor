@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { PDFPage, createMockPages } from '../../types';
 import { Thumbnail } from './Thumbnail';
+import type { RenderPageFn } from '../PDFCanvas/PDFCanvas';
 
 interface ThumbnailPanelProps {
   pages?: PDFPage[];
@@ -10,6 +11,7 @@ interface ThumbnailPanelProps {
   isOpen?: boolean;
   onClose?: () => void;
   width?: number;
+  renderPage?: RenderPageFn;
   className?: string;
 }
 
@@ -21,6 +23,7 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
   isOpen = true,
   onClose,
   width = 200,
+  renderPage,
   className = '',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -127,6 +130,7 @@ export const ThumbnailPanel: React.FC<ThumbnailPanelProps> = ({
                 isSelected={index === currentPageIndex}
                 onClick={() => onPageSelect?.(index)}
                 onDoubleClick={() => onPageDoubleClick?.(index)}
+                renderPage={renderPage}
               />
             </div>
           ))}

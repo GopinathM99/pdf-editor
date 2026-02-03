@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { PDFPage, ViewMode, Overlay, createMockPages } from '../../types';
 
+export type RenderPageFn = (pageNumber: number, canvas: HTMLCanvasElement, scale: number) => Promise<boolean>;
+
 interface PDFCanvasProps {
   pages?: PDFPage[];
   viewMode?: ViewMode;
@@ -11,6 +13,7 @@ interface PDFCanvasProps {
   onPageChange?: (pageIndex: number) => void;
   onOverlaySelect?: (overlayId: string | null) => void;
   renderOverlay?: (overlay: Overlay, isSelected: boolean) => React.ReactNode;
+  renderPage?: RenderPageFn;
   className?: string;
 }
 
@@ -21,6 +24,7 @@ interface PageRendererProps {
   selectedOverlayId: string | null;
   onOverlaySelect?: (overlayId: string | null) => void;
   renderOverlay?: (overlay: Overlay, isSelected: boolean) => React.ReactNode;
+  renderPage?: RenderPageFn;
 }
 
 const PageRenderer: React.FC<PageRendererProps> = ({
@@ -30,10 +34,18 @@ const PageRenderer: React.FC<PageRendererProps> = ({
   selectedOverlayId,
   onOverlaySelect,
   renderOverlay,
+  renderPage,
 }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const scaledWidth = page.width * scale;
   const scaledHeight = page.height * scale;
   const pageOverlays = overlays.filter((o) => o.pageId === page.id);
+
+  useEffect(() => {
+    if (renderPage && canvasRef.current) {
+      renderPage(page.pageNumber, canvasRef.current, scale);
+    }
+  }, [renderPage, page.pageNumber, scale]);
 
   const handlePageClick = (e: React.MouseEvent) => {
     // Only deselect if clicking on the page itself, not on an overlay
@@ -54,22 +66,12 @@ const PageRenderer: React.FC<PageRendererProps> = ({
       role="img"
       aria-label={`Page ${page.pageNumber}`}
     >
-      {/* Mock page content - gray placeholder */}
-      <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
-        <div className="text-gray-400 text-lg font-medium">
-          Page {page.pageNumber}
-        </div>
-        {/* Mock content lines */}
-        <div className="absolute inset-4 flex flex-col gap-2 pointer-events-none">
-          {Array.from({ length: 20 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-2 bg-gray-200 rounded"
-              style={{ width: `${60 + Math.random() * 40}%` }}
-            />
-          ))}
-        </div>
-      </div>
+      {/* Rendered page content */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0"
+        style={{ width: scaledWidth, height: scaledHeight }}
+      />
 
       {/* Overlays layer */}
       <div className="absolute inset-0 pointer-events-none">
@@ -100,6 +102,7 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
   onPageChange,
   onOverlaySelect,
   renderOverlay,
+  renderPage,
   className = '',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -165,6 +168,7 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
             selectedOverlayId={selectedOverlayId}
             onOverlaySelect={onOverlaySelect}
             renderOverlay={renderOverlay}
+            renderPage={renderPage}
           />
         </div>
       );
@@ -182,6 +186,7 @@ export const PDFCanvas: React.FC<PDFCanvasProps> = ({
             selectedOverlayId={selectedOverlayId}
             onOverlaySelect={onOverlaySelect}
             renderOverlay={renderOverlay}
+            renderPage={renderPage}
           />
         ))}
       </div>

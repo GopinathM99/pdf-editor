@@ -7,9 +7,151 @@
 
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { PDFEditor, useEditorStore } from '@pdf-editor/ui';
+import type { Overlay, PDFPage } from '@pdf-editor/ui';
+import { ContentOperations, PDFSerializer, PDFDocument } from '@pdf-editor/core';
 import { fileSystemService } from './services/fileSystemAccess';
 import { indexedDBStorage } from './services/indexedDBStorage';
 import { useDocumentStore, selectPageCount } from './store/documentStore';
+
+// ============================================
+// Helpers for embedding overlays into PDF
+// ============================================
+
+/** Convert CSS hex color (#RRGGBB) to PDF RGB (0-1 range) */
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return null;
+  return {
+    r: parseInt(result[1], 16) / 255,
+    g: parseInt(result[2], 16) / 255,
+    b: parseInt(result[3], 16) / 255,
+  };
+}
+
+/** Convert a data URL to Uint8Array */
+async function dataUrlToBytes(dataUrl: string): Promise<Uint8Array> {
+  const response = await fetch(dataUrl);
+  const blob = await response.blob();
+  const arrayBuffer = await blob.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
+}
+
+/**
+ * Embed all visible overlays into the PDF document as actual PDF content.
+ * Coordinates are converted from screen (top-left origin) to PDF (bottom-left origin).
+ */
+async function embedOverlaysIntoPDF(
+  document: PDFDocument,
+  overlays: Overlay[],
+  pages: PDFPage[]
+): Promise<void> {
+  if (overlays.length === 0) return;
+
+  const contentOps = new ContentOperations(document);
+
+  for (const overlay of overlays) {
+    if (!overlay.visible) continue;
+
+    const page = pages.find((p) => p.id === overlay.pageId);
+    if (!page) continue;
+
+    const pageH = page.height;
+
+    switch (overlay.type) {
+      case 'text': {
+        const color = hexToRgb(overlay.style.color) || { r: 0, g: 0, b: 0 };
+        // PDF y = page height - overlay top - font size (baseline position)
+        const pdfY = pageH - overlay.position.y - overlay.style.fontSize;
+        await contentOps.addText(page.pageNumber, {
+          text: overlay.content,
+          x: overlay.position.x,
+          y: pdfY,
+          fontSize: overlay.style.fontSize,
+          color,
+          maxWidth: overlay.size.width,
+          lineHeight: overlay.style.lineHeight,
+        });
+        break;
+      }
+
+      case 'shape': {
+        const fillColor =
+          overlay.style.fill !== 'transparent'
+            ? hexToRgb(overlay.style.fill)
+            : null;
+        const borderColor =
+          overlay.style.stroke !== 'transparent'
+            ? hexToRgb(overlay.style.stroke)
+            : null;
+
+        switch (overlay.shapeType) {
+          case 'rectangle': {
+            const pdfY = pageH - overlay.position.y - overlay.size.height;
+            await contentOps.drawRectangle(page.pageNumber, {
+              x: overlay.position.x,
+              y: pdfY,
+              width: overlay.size.width,
+              height: overlay.size.height,
+              fillColor: fillColor || undefined,
+              borderColor: borderColor || undefined,
+              borderWidth: overlay.style.strokeWidth,
+              opacity: overlay.style.opacity,
+            });
+            break;
+          }
+          case 'ellipse': {
+            const centerX = overlay.position.x + overlay.size.width / 2;
+            const centerY = pageH - overlay.position.y - overlay.size.height / 2;
+            await contentOps.drawEllipse(page.pageNumber, {
+              x: centerX,
+              y: centerY,
+              xRadius: overlay.size.width / 2,
+              yRadius: overlay.size.height / 2,
+              fillColor: fillColor || undefined,
+              borderColor: borderColor || undefined,
+              borderWidth: overlay.style.strokeWidth,
+              opacity: overlay.style.opacity,
+            });
+            break;
+          }
+          case 'line': {
+            const startY = pageH - overlay.position.y;
+            const endY = pageH - overlay.position.y - overlay.size.height;
+            await contentOps.drawLine(page.pageNumber, {
+              start: { x: overlay.position.x, y: startY },
+              end: { x: overlay.position.x + overlay.size.width, y: endY },
+              color: borderColor || { r: 0, g: 0, b: 0 },
+              thickness: overlay.style.strokeWidth,
+              opacity: overlay.style.opacity,
+            });
+            break;
+          }
+        }
+        break;
+      }
+
+      case 'image':
+      case 'signature': {
+        if (overlay.src) {
+          try {
+            const imageBytes = await dataUrlToBytes(overlay.src);
+            const pdfY = pageH - overlay.position.y - overlay.size.height;
+            await contentOps.addImage(page.pageNumber, {
+              imageBytes,
+              x: overlay.position.x,
+              y: pdfY,
+              width: overlay.size.width,
+              height: overlay.size.height,
+            });
+          } catch (err) {
+            console.error('Failed to embed image/signature overlay:', err);
+          }
+        }
+        break;
+      }
+    }
+  }
+}
 
 export default function App() {
   const documentStore = useDocumentStore();
@@ -45,7 +187,24 @@ export default function App() {
     const loadPersistedDocument = async () => {
       // Try to recover from previous session
       const recovered = await documentStore.recoverDocument();
-      if (recovered) return;
+      if (recovered) {
+        // Restore overlays for recovered document
+        const docId = useDocumentStore.getState().currentDocumentId;
+        if (docId) {
+          try {
+            const storedDoc = await indexedDBStorage.getDocument(docId);
+            if (storedDoc?.overlays) {
+              const overlays = JSON.parse(storedDoc.overlays);
+              if (Array.isArray(overlays) && overlays.length > 0) {
+                useEditorStore.getState().setOverlays(overlays);
+              }
+            }
+          } catch (err) {
+            console.error('Failed to restore overlays:', err);
+          }
+        }
+        return;
+      }
 
       // Otherwise check IndexedDB for legacy documents
       try {
@@ -53,6 +212,13 @@ export default function App() {
         if (docs.length > 0) {
           const latestDoc = docs[0];
           await documentStore.loadFromArrayBuffer(latestDoc.data, latestDoc.name);
+          // Restore overlays
+          if (latestDoc.overlays) {
+            const overlays = JSON.parse(latestDoc.overlays);
+            if (Array.isArray(overlays) && overlays.length > 0) {
+              useEditorStore.getState().setOverlays(overlays);
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to load persisted document:', err);
@@ -61,6 +227,33 @@ export default function App() {
 
     loadPersistedDocument();
   }, []);
+
+  // Auto-persist overlays to IndexedDB when they change
+  const overlaysPersistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    const docId = documentStore.currentDocumentId;
+    if (!docId || !documentStore.document) return;
+
+    // Debounce: save overlays 500ms after last change
+    if (overlaysPersistTimer.current) {
+      clearTimeout(overlaysPersistTimer.current);
+    }
+    overlaysPersistTimer.current = setTimeout(async () => {
+      try {
+        await indexedDBStorage.updateDocument(docId, {
+          overlays: JSON.stringify(editorStore.overlays),
+        });
+      } catch (err) {
+        console.error('Failed to auto-persist overlays:', err);
+      }
+    }, 500);
+
+    return () => {
+      if (overlaysPersistTimer.current) {
+        clearTimeout(overlaysPersistTimer.current);
+      }
+    };
+  }, [editorStore.overlays, documentStore.currentDocumentId, documentStore.document]);
 
   // Close export menu when clicking outside
   useEffect(() => {
@@ -84,6 +277,8 @@ export default function App() {
     try {
       const result = await fileSystemService.openFile();
       if (result) {
+        // Clear overlays from previous document
+        useEditorStore.getState().setOverlays([]);
         await documentStore.loadFromArrayBuffer(result.data, result.name, result.handle);
       }
     } catch (err) {
@@ -134,15 +329,52 @@ export default function App() {
     }
   }, [documentStore, textInput]);
 
+  // Helper: embed overlays into PDF, save, reload so pdf.js is in sync
+  const embedAndSave = useCallback(
+    async (saveAction: () => Promise<boolean>) => {
+      const doc = documentStore.document;
+      if (!doc) return;
+
+      const overlays = useEditorStore.getState().overlays;
+      const pages = useEditorStore.getState().pages;
+
+      // Embed visible overlays into the PDF
+      if (overlays.length > 0) {
+        await embedOverlaysIntoPDF(doc, overlays, pages);
+      }
+
+      // Save the document (to file system + IndexedDB)
+      await saveAction();
+
+      // Clear overlays (they're now part of the PDF)
+      if (overlays.length > 0) {
+        useEditorStore.getState().setOverlays([]);
+      }
+
+      // Reload document from serialized bytes so pdf.js renders the new content
+      const serializer = new PDFSerializer(doc);
+      const result = await serializer.save();
+      if (result.success) {
+        const { fileName, fileHandle } = useDocumentStore.getState();
+        await documentStore.loadFromArrayBuffer(
+          result.data.bytes.buffer as ArrayBuffer,
+          fileName,
+          fileHandle
+        );
+      }
+    },
+    [documentStore]
+  );
+
   // Save file handler
   const handleSave = useCallback(async () => {
-    await documentStore.saveDocument();
-  }, [documentStore]);
+    await embedAndSave(() => documentStore.saveDocument());
+  }, [documentStore, embedAndSave]);
 
   // Save as handler
   const handleSaveAs = useCallback(async () => {
-    await documentStore.saveDocumentAs();
-  }, [documentStore]);
+    await embedAndSave(() => documentStore.saveDocumentAs());
+  }, [documentStore, embedAndSave]);
 
   // Close document handler
   const handleClose = useCallback(async () => {
@@ -238,6 +470,14 @@ export default function App() {
   }, [handleOpenFile, handleSave, handleSaveAs, handleCreateBlank]);
 
   const hasDocument = documentStore.document !== null;
+
+  const handleRenderPage = useCallback(
+    async (pageNumber: number, canvas: HTMLCanvasElement, scale: number): Promise<boolean> => {
+      if (!documentStore.document) return false;
+      return documentStore.document.renderPageToCanvas(pageNumber, canvas, scale);
+    },
+    [documentStore.document]
+  );
 
   return (
     <div className="h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
@@ -402,7 +642,7 @@ export default function App() {
             </div>
           </div>
         ) : hasDocument ? (
-          <PDFEditor className="h-full" />
+          <PDFEditor className="h-full" renderPage={handleRenderPage} />
         ) : (
           <WelcomeScreen
             onOpenFile={handleOpenFile}

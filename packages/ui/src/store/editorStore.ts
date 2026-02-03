@@ -82,6 +82,7 @@ interface EditorState {
   resetZoom: () => void;
 
   // Actions - Overlays
+  setOverlays: (overlays: Overlay[]) => void;
   addOverlay: (overlay: Overlay) => void;
   updateOverlay: (id: string, updates: Partial<Overlay>) => void;
   deleteOverlay: (id: string) => void;
@@ -240,6 +241,8 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
 
   // Overlay actions
+  setOverlays: (overlays) => set({ overlays, selectedOverlayId: null }),
+
   addOverlay: (overlay) => {
     set((state) => ({ overlays: [...state.overlays, overlay] }));
   },

@@ -21,6 +21,7 @@ interface StoredDocument {
   isDirty: boolean;
   lastModified: number;
   thumbnailDataUrl?: string;
+  overlays?: string; // JSON-serialized overlay state
 }
 
 interface DocumentMetadata {
